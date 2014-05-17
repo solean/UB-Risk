@@ -1,0 +1,220 @@
+package code;
+
+import java.util.ArrayList;
+/**
+ * class Player is responsible for holding each player's name, the Depts of which the player is chair,
+ * and an Arraylist containing the Students "onhand" and an ArrayList of Student "inField"
+ * 
+ * Class Invariants:
+ * - name of the player
+ * - amount of students player owns on GameBoard
+ * - amount of students ready to be placed at the start of each turn
+ * - the departments that the Player is chair of
+ * 
+ * Instance Variables:
+ * - _name holds the Player's name
+ * - _chairs holds the departments the player is chair of
+ * - _onhand holds the amount of players to be dispursed at the start of each turn
+ * - _inField holds the amount of players that are on the GameBoard
+ * 
+ * @author Dom
+ * @author Rafael
+ *
+ */
+public class Player {
+	
+	private String _name;
+	private ArrayList<Dept> _chairs = new ArrayList<Dept>();
+	private int _onhand;
+	private ArrayList<Student> _inField;
+	private boolean _calledElection;
+	private boolean _firstTurn;
+	
+
+	public Player(String name){
+		_name = name;
+		_inField = new ArrayList<Student>();
+		_firstTurn = true;
+		if(_firstTurn){ _onhand = 3;}
+		else{ _onhand = 0;}
+	}
+	
+	public String getName(){
+		return _name;
+	}
+	
+	public void setFirstTurnToFalse(){
+		_firstTurn = false;
+	}
+	
+	public boolean isDean(School school, GameBoard gb){
+		if (school.getName().equals("Arts")) {
+			if (_chairs.contains(gb.getArts().getDepts()[0]) && _chairs.contains(gb.getArts().getDepts()[1]) && _chairs.contains(gb.getArts().getDepts()[2]) && _chairs.contains(gb.getArts().getDepts()[3])) {
+				return true;
+			}
+		}
+		else if (school.getName().equals("Sciences")) {
+			if (_chairs.contains(gb.getSciences().getDepts()[0]) && _chairs.contains(gb.getSciences().getDepts()[1]) && _chairs.contains(gb.getSciences().getDepts()[2]) && _chairs.contains(gb.getSciences().getDepts()[3])) {
+				return true;
+			}
+		}
+		else if (school.getName().equals("Humanities")) {
+			if (_chairs.contains(gb.getHumanities().getDepts()[0]) && _chairs.contains(gb.getHumanities().getDepts()[1]) && _chairs.contains(gb.getHumanities().getDepts()[2]) && _chairs.contains(gb.getHumanities().getDepts()[3])) {
+				return true;
+			}
+		}
+		else if (school.getName().equals("Engineering")) {
+			if (_chairs.contains(gb.getEngineering().getDepts()[0]) && _chairs.contains(gb.getEngineering().getDepts()[1]) && _chairs.contains(gb.getEngineering().getDepts()[2]) && _chairs.contains(gb.getEngineering().getDepts()[3])) {
+				return true;
+			}
+		}
+		else if (school.getName().equals("Law")) {
+			if (_chairs.contains(gb.getLaw().getDepts()[0]) && _chairs.contains(gb.getLaw().getDepts()[1]) && _chairs.contains(gb.getLaw().getDepts()[2]) && _chairs.contains(gb.getLaw().getDepts()[3])) {
+				return true;
+			}
+		}
+		else if (school.getName().equals("Medicine")) {
+			if (_chairs.contains(gb.getMedicine().getDepts()[0]) && _chairs.contains(gb.getMedicine().getDepts()[1]) && _chairs.contains(gb.getMedicine().getDepts()[2]) && _chairs.contains(gb.getMedicine().getDepts()[3])) {
+				return true;
+			}
+		}
+		return false;
+		
+	}
+	
+	public ArrayList<Dept> getChairs(){
+		return _chairs;
+	}
+	public void addChair(Dept d) {
+		_chairs.add(d);
+	}
+	public void removeChair(Dept d) {
+		_chairs.remove(d);
+	}
+	
+	/**
+	 * newTurn adds new students to _onhand ArrayList at the beginning of the Player's turn
+	 * 
+	 */
+	public void newTurn(){
+		_calledElection = false;
+		//adds new students at start of turn to _onhand arraylist, from which they can be placed in departments by player
+	//	int numDepts = this.getChairs().size();
+	//	for(int i = 0; i < numDepts*3; i++) {
+	//		_onhand.add(new Student(this, null));			
+	//	}
+	//	this.placeStudents(_onhand);
+	}
+	/**
+	 * 
+	 * placeStudents governs the placement of students in their respective departments.
+	 * 
+	 * @param onhand
+	 * @throws IOException
+	 */
+	
+	
+	/**
+	 * studentMovement asks the player to make a decision on moving their students to an adjacent 
+	 * department.
+	 */
+	
+	//needs to be "connected" to GUI
+	public void studentMovement(Dept origin, Dept dest, int amountToMove){
+		
+		if (countInDept(origin.getName()) < amountToMove) {
+			throw new IllegalArgumentException("You do not have that many students in the " + origin.getName() + " department");
+		}
+		
+		if (!origin.isAdjacent(dest)) {
+			throw new IllegalArgumentException("These departments are not adjacent, so you can't move students between them.");
+		}
+		
+		for(int i = 0; i < amountToMove; i++) {
+			Student st = _inField.get(i);
+			if (st.getDept().equals(origin)) {
+				if (!st.getMoved()) {
+					st.setDept(dest);
+					st.setMoved(true);
+				}
+			}
+		}
+	}
+	
+	//public void studentMovement(Dept origin, Dept destination,int amountToMove){
+		//if(!origin.isAdjacent(destination)){
+			//System.out.println("these depts are not adjacent");
+			//return;
+			
+		//}
+		//if(countInDept(origin.getName())<amountToMove){
+			//System.out.println("you dont have enough Students");
+			//return;
+		//}
+		//ArrayList<Student> originSList=origin.getStudents();
+		//ArrayList<Student> destinationSList= destination.getStudents();
+		
+		//int count = amountToMove;
+		
+		//for(int i=0;count>0;i++){
+			
+			//if(originSList.get(i).getLoyalty().equals(this)){
+				//Student studentToMove = originSList.get(i);
+				//destinationSList.add(studentToMove);
+				//originSList.remove(i);
+				//count--;	
+			//}
+		//}
+	//}
+	
+	public int countInDept(String dept) {
+		int count = 0;
+		for(int i = 0; i < _inField.size(); i++) {
+			if (_inField.get(i).getDept().getName().equals(dept)) {
+				count++;
+			}
+		}
+		return count;
+
+	}
+	
+	public int getMovableInDept(Dept d){
+		int count = 0;
+		for(Student s:d.getStudents()){
+			if(s.getLoyalty().equals(this) && !s.getMoved())
+			count ++;
+		}
+		return count;
+	}
+	
+	public int getOnhand() {
+		return _onhand;
+	}
+	
+	public void addOnHand(int i){
+		_onhand = _onhand + i;
+	}
+	
+	public void removeOnHand(int i){
+		_onhand = _onhand - i;
+	}
+	
+	public void addInField(Student s){
+		_inField.add(s);
+	}
+	
+	public ArrayList<Student> getInField() {
+		return _inField;
+	}
+	
+	public void setinField(ArrayList<Student> a){
+		_inField = a;
+	}
+	public void setCalledElection(boolean b) {
+		_calledElection = b;
+	}
+	public boolean getCalledElection() {
+		return _calledElection;
+	}
+	
+}

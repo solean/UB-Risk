@@ -1,0 +1,256 @@
+package code;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Random;
+/**
+ * class GameDriver is responsible for initializing all of the other game components and controlling 
+ * the flow of the game
+ * 
+ * Class invariants:
+ * _playerCount should always be the number of players in the game
+ * _players should always be the ArrayList containing each Player object in the game 
+ * 
+ * @author Dom
+ * @author Pat
+ * @author Rafael
+ * @author Chris
+ *
+ */
+public class GameDriver {
+	//keeps track of rules 
+	//makes gameboard
+	//winElection() method must make all students in the dept set to the winning player
+	
+	//to start game:
+	// 1.prompt for number of players 2 -20
+	// 2.make a for loop that prompts for each players name
+	// 3.figure out how to distribute departments
+	
+	
+	//somewhere in here add the initial player distribution
+	private static int _playerCount;
+
+	private int _currentPlayerIndex;
+
+	//private ArrayList<Player> _players = new ArrayList<Player>();
+	private Player _currentPlayer;
+
+	private MyFrame _m;
+	public Wizard _wiz;
+	public GameBoard _gb;
+	private int playerCount;
+	private ArrayList<Player> _players;
+	private static ArrayList<String> playerNames;
+	private DragGUI _g;
+	
+	public GameDriver(DragGUI g){
+		 //set up the player//
+	    _players = new ArrayList<Player>();
+	    _players.add(new Player("Patrick"));
+	    _players.add(new Player("joe"));
+	    _players.add(new Player("Barbara"));
+	    //just for testing//
+		_gb = new GameBoard();
+		_g = g;
+		_g.setGameDriver(this);
+		_g.updateUI();
+		//_wiz = new Wizard(this);
+		//_currentPlayer = _players.get(0);
+	}
+	
+	public void nextTurn(){
+		if(_currentPlayerIndex < _players.size()-1)
+			_currentPlayerIndex = _currentPlayerIndex + 1;
+		else
+			_currentPlayerIndex = 0;
+		
+		getCurrentPlayer().addOnHand(getCurrentPlayer().getChairs().size()*3);
+		getCurrentPlayer().addOnHand(getNumberOfDeans() *10);
+	}
+	
+	public int getMultiplier(School sc){
+		if(getCurrentPlayer().isDean(sc,_gb)){
+			
+		}
+		
+	}
+	
+	public int getNumberOfDeans(){
+		int count = 0;
+		if(getCurrentPlayer().isDean(_gb.getArts(),_gb))
+			count ++;
+		if(getCurrentPlayer().isDean(_gb.getSciences(),_gb))
+			count ++;
+		if(getCurrentPlayer().isDean(_gb.getLaw(),_gb))
+			count ++;
+		if(getCurrentPlayer().isDean(_gb.getHumanities(),_gb))
+			count ++;
+		if(getCurrentPlayer().isDean(_gb.getEngineering(),_gb))
+			count ++;
+		if(getCurrentPlayer().isDean(_gb.getMedicine(),_gb))
+			count ++;
+		return count;
+	}
+	
+	public void updateDriver(){
+		_m = _wiz.getMyFrame();
+		_m.studentPlacement(_players.get(0));
+		testOutput(_players.get(0));
+		_players.get(0).newTurn();
+	}
+	
+	/**
+	 * createPlayers creates and returns an ArrayList of Player objects
+	 * @param names 
+	 * @return
+	 */
+	public void createPlayers(String[] names) {
+		for(String name : names) {
+			_players.add(new Player(name));
+		}
+		
+		Random rand = new Random();
+		ArrayList<Dept> depts = new ArrayList<Dept>();
+		for(Dept d : _gb.getDepts()) {
+			depts.add(d);
+		}
+		for (Player p : _players) {
+			if (!p.getChairs().isEmpty()) {return;}
+			int n = rand.nextInt(depts.size());
+			Dept randDept = depts.get(n);
+			p.addChair(randDept);
+			depts.remove(n);
+		}
+	}
+	
+	
+	
+	public boolean wonElection(Player p, Dept d){
+		
+		if (p.countInDept(d.getName()) == 0) {
+			throw new IllegalArgumentException("You do not have any students in this department so you can not call an election here.");
+		}
+		if (p.getChairs().contains(d)) {
+			throw new IllegalArgumentException("You can't call an election here since you are already the Chair of this department.");
+		}
+		if (p.getCalledElection()) {
+			throw new IllegalArgumentException("You can't call an election here since you have already called one this turn.");
+		}
+		
+		Random rand = new Random();
+		int yesVotes = 0;
+		for(Student pl:d.getStudents()){
+			if(pl.getLoyalty().equals(p)){
+				if(rand.nextInt(100) + 1 < 66){
+					yesVotes ++;
+				}
+			}
+			else{
+				if(rand.nextInt(100) + 1 >=66){
+					yesVotes ++;
+				}
+			}		
+		}
+		
+		p.setCalledElection(true);
+		
+		if(yesVotes >= d.getStudents().size()/2){
+			p.addChair(d);
+			if (p.isDean(d.getSchool(), _gb)) {
+				//set loyalty of all students in school to player
+			}
+			for (Student s : d.getStudents()) {
+				s.setLoyalty(p);
+			}
+			//if isPresident, player wins game
+			return true;
+		}
+		return false;
+	}
+	
+	public boolean isPresident(Player p) {
+		if (p.isDean(school, _gb) && p.isDean(school, _gb) && p.isDean(school, _gb) && p.isDean(school, _gb) && p.isDean(school, gb) && p.isDean(school, gb)) {
+			return true;
+		}
+		return false;
+	}
+	
+	public ArrayList<Student> getAllStudents() {
+		ArrayList<Student> allStudents = new ArrayList<Student>();
+		for (int i = 0; i < _players.size(); i++) {
+			Player player = _players.get(i);
+			for (int j = 0; j < player.getInField().size(); j++) {
+				allStudents.add(player.getInField().get(j));
+			}
+		}
+		return allStudents;
+	}
+	
+	public void turnPhase(int index, GameBoard board) throws IOException{
+
+		//_players.get(index).placeStudents(_players.get(index).getOnhand());
+		//_players.get(index).studentMovement(); // maybe move to myframe
+
+		//_players.get(index).placeStudents(_players.get(index).getOnhand());
+		//_players.get(index).studentMovement(); // maybe move to myframe
+
+		//_players.get(index).callElection();
+		
+		if(!board.getFoundPresident())
+			if(index + 1 > _players.size())
+				turnPhase(0, board);
+			else
+				turnPhase(index + 1, board);
+	}
+	
+	
+	
+	public static void main(String[] args){
+		
+		GameDriver gd = new GameDriver(new DragGUI());
+		gd.setPlayers(args);
+	}
+	public void testOutput(Player p){
+		System.out.println(p.getName());
+	}
+	
+	public void setPlayers(String[] args){
+		for(int i=0;i<args.length;i++){
+			playerNames.add(args[i]);
+		}
+		playerCount=args.length;
+	}
+	public Player getCurrentPlayer(){
+		return _players.get(_currentPlayerIndex);
+	}
+	
+	public GameBoard getGameBoard(){
+		return _gb;
+	}
+	
+	public int everyoneElsesStudents(String dept){
+		int count = 0;
+		for(Player p: _players){
+			for(int i = 0; i < p.getInField().size(); i++) {
+				if (p.getInField().get(i).getDept().getName().equals(dept)) {
+					count++;
+				}
+			}
+		}
+		return count;
+	}
+	
+	public void testNames(){
+		String[] temp = new String[3];
+		temp[0] = ("Suzie");
+		temp[0] = ("Brendan");
+		temp[0] = ("Geoff");
+		createPlayers(temp);
+	}
+	
+}
